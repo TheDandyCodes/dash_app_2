@@ -10,9 +10,9 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 
-liq_spread_table = pd.read_csv('pricing_parameters/LS.csv')
-fix_params = pd.read_csv('pricing_parameters/params.csv')
-df = pd.read_csv('pricing_parameters/contratos_BBDD.csv')
+liq_spread_table = pd.read_csv('LS.csv')
+fix_params = pd.read_csv('params.csv')
+df = pd.read_csv('contratos_BBDD.csv')
 
 def real_balance_calc(tasa_interes_anual, num_pagos, monto_prestamo, cancelacion=0):
 
