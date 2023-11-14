@@ -9,6 +9,7 @@ from dash import dash_table
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
+import os
 
 liq_spread_table = pd.read_csv('LS.csv')
 fix_params = pd.read_csv('params.csv')
@@ -300,7 +301,11 @@ def make_pandl(data, num_productos, product1='', product2='', product3=''):
     data_pl = data_pl.tail(17)
     return data_pl
 
-df = full_data(df)
+if 'contratos_full_BBDD.csv' not in os.listdir('./'):
+    df = full_data(df)
+else:
+    df = pd.read_csv('pricing_parameters/contratos_full_BBDD.xlsx', parse_dates=['Mes'])
+
 df_pl = make_pandl(df, 4)
 
 ############################### DASH ##############################################
@@ -663,3 +668,4 @@ def valores(valor8):
 
 if __name__ == "__main__":
     app.run_server(debug=True, port=8080)
+
