@@ -10,9 +10,9 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 
-liq_spread_table = pd.read_csv('LS.csv')
-fix_params = pd.read_csv('params.csv')
-df = pd.read_csv('contratos_BBDD.csv')
+liq_spread_table = pd.read_csv('pricing_parameters/LS.csv')
+fix_params = pd.read_csv('pricing_parameters/params.csv')
+df = pd.read_csv('pricing_parameters/contratos_BBDD.csv')
 
 def real_balance_calc(tasa_interes_anual, num_pagos, monto_prestamo, cancelacion=0):
 
@@ -307,8 +307,6 @@ df_pl = make_pandl(df, 4)
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, 'styles.css'])
 server = app.server
-
-df = pd.read_csv('pricing_parameters/contratos_BBDD.csv')
 
 opciones_dropdown_1 = [
     {'label': 'Consumo', 'value': 'consumo'},
@@ -614,7 +612,7 @@ def table(valor8):
         pandl_table = make_pandl(df, 4)
     
 
-    fig1 = line_plot(pivot, ", ".join(valor8))
+    fig1 = line_plot(pivot)
     fig2 = bubble_chart(pivot_rorwa)
     
 
@@ -664,5 +662,4 @@ def valores(valor8):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, port=8070)
-
+    app.run_server(debug=True, port=8080)
