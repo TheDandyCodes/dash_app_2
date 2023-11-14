@@ -274,25 +274,46 @@ def make_pandl(data, num_productos, product1='', product2='', product3=''):
         data_pl = np.round(data[data.Cluster == product1].pivot_table(values=['Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'],
                             index='Mes',
                             aggfunc=lambda rows: np.average(rows, weights=data.loc[rows.index, 'Real term Ponderado'])), 3).reset_index(drop=True)
+        sum = np.round(data[data.Cluster == product1].pivot_table(values=['Monto', 'RWA'],
+                       index='Mes',
+                       aggfunc='sum'), 3)
+        data_pl['RWA'] = sum.RWA.values
+        data_pl['Monto'] = sum.Monto.values
         data_pl[negs] = data_pl[negs]*-1
     elif num_productos == 2:
         data_pl = np.round(data[(data.Cluster == product1) | (data.Cluster == product2)].pivot_table(values=['Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'],
                             index='Mes',
                             aggfunc=lambda rows: np.average(rows, weights=data.loc[rows.index, 'Real term Ponderado'])), 3).reset_index(drop=True)
+        sum = np.round(data[(data.Cluster == product1) | (data.Cluster == product2)].pivot_table(values=['Monto', 'RWA'],
+                       index='Mes',
+                       aggfunc='sum'), 3)
+        data_pl['RWA'] = sum.RWA.values
+        data_pl['Monto'] = sum.Monto.values
         data_pl[negs] = data_pl[negs]*-1
     elif num_productos == 3:
         data_pl = np.round(data[(data.Cluster == product1) | (data.Cluster == product2) | (data.Cluster == product3)].pivot_table(values=['Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'],
                             index='Mes',
                             aggfunc=lambda rows: np.average(rows, weights=data.loc[rows.index, 'Real term Ponderado'])), 3).reset_index(drop=True)
+        sum = np.round(data[(data.Cluster == product1) | (data.Cluster == product2) | (data.Cluster == product3)].pivot_table(values=['Monto', 'RWA'],
+                       index='Mes',
+                       aggfunc='sum'), 3)
+        data_pl['RWA'] = sum.RWA.values
+        data_pl['Monto'] = sum.Monto.values
         data_pl[negs] = data_pl[negs]*-1
     else:
         data_pl = np.round(data.pivot_table(values=['Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'],
                             index='Mes',
                             aggfunc=lambda rows: np.average(rows, weights=data.loc[rows.index, 'Real term Ponderado'])), 3).reset_index(drop=True)
+        sum = np.round(data.pivot_table(values=['Monto', 'RWA'],
+                       index='Mes',
+                       aggfunc='sum'), 3)
+        data_pl['RWA'] = sum.RWA.values
+        data_pl['Monto'] = sum.Monto.values
         data_pl[negs] = data_pl[negs]*-1
         
     data_pl = data_pl.reindex(columns=['Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'])
     data_pl[['TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RORWA']] = np.round(data_pl[['TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RORWA']]*100, 3)
+    data_pl['RORWA'] = np.round(data_pl['RORWA']/100, 2)
     data_pl.insert(0, 'Mes', mes)
     data_pl = data_pl.T
     data_pl.insert(0, 'P&L NB', ['Mes', 'Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'])
@@ -471,8 +492,8 @@ card_pandl = dbc.Card(pandl_card_content, style={'background-color': 'white', 'm
 card_content_inv = [
     dbc.CardBody(
         [
-            html.P("Inversion", style={'text-align': 'center', 'font-weight': 'bold', 'color':'rgb(0,26,72)'}, className="card-title"),
-            html.P(id='valor-inversion', style={'font-size':'14px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
+            html.P("Inversion 2023", style={'text-align': 'center', 'font-weight': 'bold', 'color':'rgb(0,26,72)', 'font-size':'12px', 'margin-bottom':'0px'}, className="card-title"),
+            html.P(id='valor-inversion', style={'font-size':'12px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
         ]
     )
 ]
@@ -480,8 +501,8 @@ card_content_inv = [
 card_content_rorwa = [
     dbc.CardBody(
         [
-            html.P("RORWA", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)'}, className="card-title"),
-            html.P(id='valor-td', style={'font-size':'14px', 'text-align': 'center'}),
+            html.P("RORWA 2023", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)', 'font-size':'12px', 'margin-bottom':'0px'}, className="card-title"),
+            html.P(id='valor-td', style={'font-size':'12px', 'text-align': 'center'}),
         ]
     )
 ]
@@ -489,8 +510,8 @@ card_content_rorwa = [
 card_content_tin = [
     dbc.CardBody(
         [
-            html.P("TIN", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)'}, className="card-title"),
-            html.P(id='valor-tin', style={'font-size':'14px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
+            html.P("TIN 2023", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)', 'font-size':'12px', 'margin-bottom':'0px'}, className="card-title"),
+            html.P(id='valor-tin', style={'font-size':'12px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
         ]
     )
 ]
@@ -498,8 +519,8 @@ card_content_tin = [
 card_content_nii = [
     dbc.CardBody(
         [
-            html.P("Net Int. Inc.", style={'text-align': 'center', 'font-weight':'bold','color':'rgb(0,26,72)'}, className="card-title"),
-            html.P(id='valor-nii', style={'font-size':'14px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
+            html.P("Net Int. Inc. 2023", style={'text-align': 'center', 'font-weight':'bold','color':'rgb(0,26,72)', 'font-size':'12px', 'margin-bottom':'0px'}, className="card-title"),
+            html.P(id='valor-nii', style={'font-size':'12px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
         ]
     )
 ]
@@ -507,8 +528,8 @@ card_content_nii = [
 card_content_finfee = [
     dbc.CardBody(
         [
-            html.P("Fin. fees", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)'}, className="card-title"),
-            html.P(id='valor-finfee', style={'font-size':'14px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
+            html.P("Fin. fees 2023", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)', 'font-size':'12px', 'margin-bottom':'0px'}, className="card-title"),
+            html.P(id='valor-finfee', style={'font-size':'12px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
         ]
     )
 ]
@@ -516,8 +537,8 @@ card_content_finfee = [
 card_content_gm = [
     dbc.CardBody(
         [
-            html.P("Gross Marg.", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)'}, className="card-title"),
-            html.P(id='valor-gm', style={'font-size':'14px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
+            html.P("Gross Marg. 2023", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)', 'font-size':'12px', 'margin-bottom':'0px'}, className="card-title"),
+            html.P(id='valor-gm', style={'font-size':'12px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
         ]
     )
 ]
@@ -525,7 +546,7 @@ card_content_gm = [
 card_content_pat = [
     dbc.CardBody(
         [
-            html.P("PAT", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)'}, className="card-title"),
+            html.P("PAT 2023", style={'text-align': 'center', 'font-weight':'bold', 'color':'rgb(0,26,72)', 'font-size':'12px', 'margin-bottom':'0px'}, className="card-title"),
             html.P(id='valor-pat', style={'font-size':'12px', 'text-align': 'center', 'color':'rgb(0,26,72)'}),
         ]
     )
@@ -570,7 +591,7 @@ app.layout = html.Div([
 
 #Función de callback para crear un DataFrame y actualizar la visualización
 @app.callback(
-    [Output('line-1', 'figure'), Output('line-2', 'figure'), Output('pandl', 'data')],#, Output('monto-value', 'children'), Output('rorwa-value', 'children'), Output('tin-value', 'children'), Output('nii-value', 'children'), Output('finfees-value', 'children'), Output('gm-value', 'children'), Output('pat-value', 'children')],
+    [Output('line-1', 'figure'), Output('line-2', 'figure'), Output('pandl', 'data'), Output('valor-inversion', 'children'), Output('valor-td', 'children'), Output('valor-tin', 'children'), Output('valor-nii', 'children'), Output('valor-finfee', 'children'), Output('valor-gm', 'children'), Output('valor-pat', 'children')],#, Output('monto-value', 'children'), Output('rorwa-value', 'children'), Output('tin-value', 'children'), Output('nii-value', 'children'), Output('finfees-value', 'children'), Output('gm-value', 'children'), Output('pat-value', 'children')],
     [Input('contrato-input', 'value')],
 )
 def table(valor8):
@@ -588,6 +609,8 @@ def table(valor8):
         pivot_rorwa = np.round(df[df.Cluster==valor8[0]].pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
                        index='Cluster',
                        aggfunc=lambda rows: np.average(rows, weights=df[df.Cluster==valor8[0]].loc[rows.index, 'Real term Ponderado']))*100, 3)
+        pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
+        pivot_rorwa['Monto'] = pivot_rorwa['Monto']/100
         pandl_table = make_pandl(df, 1, valor8[0])
         
     elif len(valor8) == 2:
@@ -597,6 +620,8 @@ def table(valor8):
         pivot_rorwa = np.round(df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1])].pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
                        index='Cluster',
                        aggfunc=lambda rows: np.average(rows, weights=df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1])].loc[rows.index, 'Real term Ponderado']))*100, 3)
+        pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
+        pivot_rorwa['Monto'] = pivot_rorwa['Monto']/100
         pandl_table = make_pandl(df, 2, valor8[0], valor8[1])
 
     elif len(valor8) == 3:
@@ -606,6 +631,8 @@ def table(valor8):
         pivot_rorwa = np.round(df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1]) | (df.Cluster==valor8[2])].pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
                        index='Cluster',
                        aggfunc=lambda rows: np.average(rows, weights=df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1]) | (df.Cluster==valor8[2])].loc[rows.index, 'Real term Ponderado']))*100, 3)
+        pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
+        pivot_rorwa['Monto'] = pivot_rorwa['Monto']/100
         pandl_table = make_pandl(df, 3, valor8[0], valor8[1], valor8[2])
     else:
         pivot = np.round(df.pivot_table(values=['ITR', 'NII', 'TII', 'LS'],
@@ -614,56 +641,28 @@ def table(valor8):
         pivot_rorwa = np.round(df.pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
                        index='Cluster',
                        aggfunc=lambda rows: np.average(rows, weights=df.loc[rows.index, 'Real term Ponderado']))*100, 3)
+        pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
+        pivot_rorwa['Monto'] = pivot_rorwa['Monto']/100
         pandl_table = make_pandl(df, 4)
     
 
     fig1 = line_plot(pivot)
     fig2 = bubble_chart(pivot_rorwa)
-    
 
-    return fig1, fig2, pandl_table.to_dict('records')
-
-@app.callback(
-    [Output('valor-inversion', 'children'), Output('valor-td', 'children'), Output('valor-tin', 'children'), Output('valor-nii', 'children'), Output('valor-finfee', 'children'), Output('valor-gm', 'children'), Output('valor-pat', 'children')],
-    [Input('contrato-input', 'value')],
-)
-def valores(valor8):
-
-    if len(valor8) == 0:
-        return _
-    elif len(valor8) == 1:
-        pivot_rorwa = np.round(df[df.Cluster==valor8[0]].pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
-                       index='Cluster',
-                       aggfunc=lambda rows: np.average(rows, weights=df[df.Cluster==valor8[0]].loc[rows.index, 'Real term Ponderado']), margins=True)*100, 2)
-        
-    elif len(valor8) == 2:
-        pivot_rorwa = np.round(df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1])].pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
-                       index='Cluster',
-                       aggfunc=lambda rows: np.average(rows, weights=df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1])].loc[rows.index, 'Real term Ponderado']), margins=True)*100, 2)
-
-    elif len(valor8) == 3:
-        pivot_rorwa = np.round(df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1]) | (df.Cluster==valor8[2])].pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
-                       index='Cluster',
-                       aggfunc=lambda rows: np.average(rows, weights=df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1]) | (df.Cluster==valor8[2])].loc[rows.index, 'Real term Ponderado']), margins=True)*100, 2)
-    else:
-        pivot_rorwa = np.round(df.pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
-                       index='Cluster',
-                       aggfunc=lambda rows: np.average(rows, weights=df.loc[rows.index, 'Real term Ponderado']), margins=True)*100, 2)
-
-    m = str(pivot_rorwa.Monto['All']/100)
-    r = pivot_rorwa.RORWA['All']
+    m = str(pandl_table['Diciembre 2023'].Monto)
+    r = pandl_table['Diciembre 2023'].RORWA
     color = 'green' if r > 2 else 'red'
     r_rag = html.Span(
         children=f'{r}',
         style={'color': color}
     )
-    tin = str(pivot_rorwa.TIN['All'])
-    nii = str(pivot_rorwa.NII['All'])
-    finfee = str(np.round(pivot_rorwa.fees_terceros['All'] + pivot_rorwa.fees_rappels['All'], 2))
-    gm = str(pivot_rorwa.GM['All'])
-    pat = str(pivot_rorwa.PAT['All'])
+    tin = str(pandl_table['Diciembre 2023'].TIN)
+    nii = str(pandl_table['Diciembre 2023'].NII)
+    finfee = str(np.round(pandl_table['Diciembre 2023'].fees_terceros + pandl_table['Diciembre 2023'].fees_rappels, 2))
+    gm = str(pandl_table['Diciembre 2023'].GM)
+    pat = str(pandl_table['Diciembre 2023'].PAT)
 
-    return m, r_rag, tin, nii, finfee, gm, pat
+    return fig1, fig2, pandl_table.to_dict('records'), m, r_rag, tin, nii, finfee, gm, pat
 
 
 if __name__ == "__main__":
