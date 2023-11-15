@@ -237,10 +237,10 @@ def line_plot(pivot_table):
     return fig
 
 
-def bubble_chart(pivot_table):
-    fig = px.scatter(pivot_table, x=pivot_table.RORWA, y=pivot_table.TIN,
-                size=pivot_table.Monto/100, color=pivot_table.index,
-                    hover_name=pivot_table.index, text=pivot_table.index, size_max=90, width=700)
+def bubble_chart(table):
+    fig = px.scatter(table, x=table.RORWA, y=table.TIN,
+                size=table.Monto, color=table.Producto,
+                    hover_name=table.Producto, text=table.Producto, size_max=90, width=700)
     fig.add_shape(type='line',
                 x0=2, y0=0, x1=2, y1=1, xref='x', yref='paper',
                 line=dict(color='rgb(255, 105, 105)', width=2, dash='dash'))
@@ -279,6 +279,7 @@ def make_pandl(data, num_productos, product1='', product2='', product3=''):
                        aggfunc='sum'), 3)
         data_pl['RWA'] = sum.RWA.values
         data_pl['Monto'] = sum.Monto.values
+        data_pl['RORWA'] = (data_pl.PAT*data_pl.Monto)/data_pl.RWA
         data_pl[negs] = data_pl[negs]*-1
     elif num_productos == 2:
         data_pl = np.round(data[(data.Cluster == product1) | (data.Cluster == product2)].pivot_table(values=['Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'],
@@ -289,6 +290,7 @@ def make_pandl(data, num_productos, product1='', product2='', product3=''):
                        aggfunc='sum'), 3)
         data_pl['RWA'] = sum.RWA.values
         data_pl['Monto'] = sum.Monto.values
+        data_pl['RORWA'] = (data_pl.PAT*data_pl.Monto)/data_pl.RWA
         data_pl[negs] = data_pl[negs]*-1
     elif num_productos == 3:
         data_pl = np.round(data[(data.Cluster == product1) | (data.Cluster == product2) | (data.Cluster == product3)].pivot_table(values=['Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'],
@@ -299,6 +301,7 @@ def make_pandl(data, num_productos, product1='', product2='', product3=''):
                        aggfunc='sum'), 3)
         data_pl['RWA'] = sum.RWA.values
         data_pl['Monto'] = sum.Monto.values
+        data_pl['RORWA'] = (data_pl.PAT*data_pl.Monto)/data_pl.RWA
         data_pl[negs] = data_pl[negs]*-1
     else:
         data_pl = np.round(data.pivot_table(values=['Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'],
@@ -309,11 +312,12 @@ def make_pandl(data, num_productos, product1='', product2='', product3=''):
                        aggfunc='sum'), 3)
         data_pl['RWA'] = sum.RWA.values
         data_pl['Monto'] = sum.Monto.values
+        data_pl['RORWA'] = (data_pl.PAT*data_pl.Monto)/data_pl.RWA
         data_pl[negs] = data_pl[negs]*-1
         
     data_pl = data_pl.reindex(columns=['Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'])
     data_pl[['TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RORWA']] = np.round(data_pl[['TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RORWA']]*100, 3)
-    data_pl['RORWA'] = np.round(data_pl['RORWA']/100, 2)
+    data_pl['RORWA'] = np.round(data_pl['RORWA'], 2)
     data_pl.insert(0, 'Mes', mes)
     data_pl = data_pl.T
     data_pl.insert(0, 'P&L NB', ['Mes', 'Monto', 'TIN', 'fees_terceros', 'fees_rappels', 'fees_apertura', 'TII', 'TIE', 'NII', 'non_fin_fees', 'GM', 'op_exp', 'NOI', 'EL', 'PBT', 'PAT', 'RWA', 'RORWA'])
@@ -609,7 +613,7 @@ def table(valor8):
         pivot_rorwa = np.round(df[df.Cluster==valor8[0]].pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
                        index='Cluster',
                        aggfunc=lambda rows: np.average(rows, weights=df[df.Cluster==valor8[0]].loc[rows.index, 'Real term Ponderado']))*100, 3)
-        pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
+        # pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
         pivot_rorwa['Monto'] = pivot_rorwa['Monto']/100
         pandl_table = make_pandl(df, 1, valor8[0])
         
@@ -620,7 +624,7 @@ def table(valor8):
         pivot_rorwa = np.round(df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1])].pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
                        index='Cluster',
                        aggfunc=lambda rows: np.average(rows, weights=df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1])].loc[rows.index, 'Real term Ponderado']))*100, 3)
-        pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
+        # pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
         pivot_rorwa['Monto'] = pivot_rorwa['Monto']/100
         pandl_table = make_pandl(df, 2, valor8[0], valor8[1])
 
@@ -631,7 +635,7 @@ def table(valor8):
         pivot_rorwa = np.round(df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1]) | (df.Cluster==valor8[2])].pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
                        index='Cluster',
                        aggfunc=lambda rows: np.average(rows, weights=df[(df.Cluster==valor8[0]) | (df.Cluster==valor8[1]) | (df.Cluster==valor8[2])].loc[rows.index, 'Real term Ponderado']))*100, 3)
-        pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
+        # pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
         pivot_rorwa['Monto'] = pivot_rorwa['Monto']/100
         pandl_table = make_pandl(df, 3, valor8[0], valor8[1], valor8[2])
     else:
@@ -641,13 +645,15 @@ def table(valor8):
         pivot_rorwa = np.round(df.pivot_table(values=['RORWA', 'TIN', 'Monto', 'NII', 'fees_terceros', 'fees_rappels', 'GM', 'PAT'],
                        index='Cluster',
                        aggfunc=lambda rows: np.average(rows, weights=df.loc[rows.index, 'Real term Ponderado']))*100, 3)
-        pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
+        # pivot_rorwa['RORWA'] = pivot_rorwa['RORWA']/100
         pivot_rorwa['Monto'] = pivot_rorwa['Monto']/100
         pandl_table = make_pandl(df, 4)
     
+    bubble_df = pd.DataFrame({'RORWA':[make_pandl(df, 1, i)['Diciembre 2023'].RORWA for i in valor8], 'TIN':[make_pandl(df, 1, i)['Diciembre 2023'].TIN for i in valor8], 'Monto':[make_pandl(df, 1, i)['Diciembre 2023'].Monto for i in valor8], 'Producto':valor8})
+    
 
     fig1 = line_plot(pivot)
-    fig2 = bubble_chart(pivot_rorwa)
+    fig2 = bubble_chart(bubble_df)
 
     m = str(pandl_table['Diciembre 2023'].Monto)
     r = pandl_table['Diciembre 2023'].RORWA
@@ -667,4 +673,3 @@ def table(valor8):
 
 if __name__ == "__main__":
     app.run_server(debug=True, port=8080)
-
